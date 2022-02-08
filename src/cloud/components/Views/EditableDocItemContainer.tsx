@@ -1,5 +1,5 @@
 import { lngKeys } from '../../lib/i18n/types'
-import { mdiDotsVertical, mdiPencilOutline, mdiTrashCanOutline } from '@mdi/js'
+import { mdiDotsHorizontal, mdiPencilOutline, mdiTrashCanOutline } from '@mdi/js'
 import React, { useCallback, useState } from 'react'
 import { SerializedDocWithSupplemental } from '../../interfaces/db/doc'
 import { useCloudApi } from '../../lib/hooks/useCloudApi'
@@ -92,7 +92,7 @@ const EditableDocItemContainer = ({ doc, children }: ItemProps) => {
             onClick={(event) => openActionMenu(event, doc)}
             className='doc__action'
           >
-            <Icon size={20} path={mdiDotsVertical} />
+            <Icon size={20} path={mdiDotsHorizontal} />
           </div>
         </div>
       )}
@@ -110,6 +110,10 @@ const ItemContainer = styled.div`
     margin: 0;
     top: 50%;
     transform: translate(-50%, -50%);
+
+    &:hover {
+      cursor: pointer;
+    }
 
     .doc__action {
       width: 20px;
