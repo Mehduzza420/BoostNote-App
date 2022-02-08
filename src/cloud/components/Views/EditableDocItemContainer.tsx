@@ -1,5 +1,9 @@
 import { lngKeys } from '../../lib/i18n/types'
-import { mdiDotsHorizontal, mdiPencilOutline, mdiTrashCanOutline } from '@mdi/js'
+import {
+  mdiDotsHorizontal,
+  mdiPencilOutline,
+  mdiTrashCanOutline,
+} from '@mdi/js'
 import React, { useCallback, useState } from 'react'
 import { SerializedDocWithSupplemental } from '../../interfaces/db/doc'
 import { useCloudApi } from '../../lib/hooks/useCloudApi'
