@@ -198,6 +198,7 @@ export function useCloudResourceModals() {
           }}
           prevRows={options?.precedingRows}
           onSubmit={async (inputValue: string, emoji?: string) => {
+            console.log(body)
             if (body.team == null || body.workspaceId == null) {
               return
             }
@@ -427,6 +428,7 @@ export function useCloudResourceModals() {
       return openModal(
         <DocPreviewModal doc={doc} team={team} fallbackUrl={fallbackUrl} />,
         {
+          width: 'fit',
           showCloseIcon: false,
           removePadding: true,
           navigation: {

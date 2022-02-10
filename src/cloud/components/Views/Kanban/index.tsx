@@ -9,6 +9,7 @@ import Flexbox from '../../../../design/components/atoms/Flexbox'
 import Icon from '../../../../design/components/atoms/Icon'
 import { Label } from '../../../../design/components/atoms/Label'
 import FormToggableInput from '../../../../design/components/molecules/Form/atoms/FormToggableInput'
+import { StatusEditor } from '../../../../design/components/molecules/LabelManager'
 import Kanban from '../../../../design/components/organisms/Kanban'
 import { useModal } from '../../../../design/lib/stores/modal'
 import styled from '../../../../design/lib/styled'
@@ -52,6 +53,7 @@ const KanbanView = ({
 }: KanbanViewProps) => {
   const {
     state: { statuses },
+    editStatus,
   } = useStatuses(team.id)
   const {
     prop,
@@ -69,7 +71,7 @@ const KanbanView = ({
   const { openContextModal, closeLastModal } = useModal()
   const { createDoc } = useCloudApi()
   const { translate } = useI18n()
-  const { goToDocPreview } = useCloudResourceModals()
+  const { goToDocPreview, openNewDocForm } = useCloudResourceModals()
 
   const addListRef = useRef(addList)
   useEffect(() => {
@@ -107,6 +109,10 @@ const KanbanView = ({
     (list: typeof lists[number]) => {
       const id = Number(list.id)
       const status = statuses.find((status) => status.id === id)
+      const statusProp =
+        list.id !== 'none'
+          ? statuses.find((status) => status.id === parseInt(list.id))
+          : undefined
       return (
         <Flexbox
           justifyContent='space-between'
@@ -116,35 +122,88 @@ const KanbanView = ({
             name={status?.name || 'No Status'}
             backgroundColor={status?.backgroundColor}
           />
-          <Button
-            onClick={(event) => {
-              openContextModal(
-                event,
-                <ListSettings
-                  list={list}
-                  remove={(list) => {
-                    removeListRef.current(list)
-                    closeLastModal()
-                  }}
-                  move={(list, move) => {
-                    onListMoveRef.current(list, move)
-                    closeLastModal()
-                  }}
-                />,
-                {
-                  width: 250,
-                  removePadding: true,
-                  keepAll: true,
-                }
-              )
-            }}
-            iconPath={mdiDotsHorizontal}
-            variant='icon'
-          />
+          <div className={'kanban__item--action-buttons'}>
+            {currentWorkspaceId != null && (
+              <Button
+                className={'kanban__item--action-button'}
+                variant={'icon'}
+                iconPath={mdiPlus}
+                onClick={() => {
+                  openNewDocForm(
+                    {
+                      team,
+                      workspaceId: currentWorkspaceId,
+                      parentFolderId: currentFolderId,
+                      props:
+                        statusProp != null
+                          ? {
+                              [prop]: {
+                                type: 'status',
+                                data: statusProp.id,
+                              },
+                            }
+                          : undefined,
+                    },
+                    {
+                      precedingRows: [],
+                      skipRedirect: true,
+                    }
+                  )
+                }}
+              />
+            )}
+            <Button
+              className={'kanban__item--action-button'}
+              onClick={(event) => {
+                openContextModal(
+                  event,
+                  <ListSettings
+                    list={list}
+                    remove={(list) => {
+                      removeListRef.current(list)
+                      closeLastModal()
+                    }}
+                    move={(list, move) => {
+                      onListMoveRef.current(list, move)
+                      closeLastModal()
+                    }}
+                  >
+                    {status != null && (
+                      <>
+                        <StatusEditor
+                          type='status'
+                          label={status}
+                          onSave={(status) => editStatus(status)}
+                        />
+                        <hr />
+                      </>
+                    )}
+                  </ListSettings>,
+                  {
+                    width: 250,
+                    removePadding: true,
+                    keepAll: true,
+                  }
+                )
+              }}
+              iconPath={mdiDotsHorizontal}
+              variant='icon'
+            />
+          </div>
         </Flexbox>
       )
     },
-    [statuses, openContextModal, closeLastModal]
+    [
+      statuses,
+      openContextModal,
+      editStatus,
+      team,
+      currentWorkspaceId,
+      currentFolderId,
+      prop,
+      closeLastModal,
+      openNewDocForm,
+    ]
   )
 
   const renderItem = useCallback(
@@ -319,6 +378,12 @@ const Container = styled.div`
 
   .kanban__item--header > span:hover {
     cursor: grab;
+  }
+
+  .kanban__item--header {
+    .kanban__item--action-button {
+      padding: 1px;
+    }
   }
 
   .kanban__list__footer,

@@ -1,4 +1,10 @@
-import { mdiArrowExpand, mdiClose, mdiDotsHorizontal, mdiPencil } from '@mdi/js'
+import {
+  mdiArrowExpand,
+  mdiClose,
+  mdiDotsHorizontal,
+  mdiEyeOutline,
+  mdiPencil,
+} from '@mdi/js'
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { useCallback } from 'react'
@@ -19,13 +25,18 @@ import { useRouter } from '../../lib/router'
 import { useGlobalData } from '../../lib/stores/globalData'
 import { useNav } from '../../lib/stores/nav'
 import { usePage } from '../../lib/stores/pageStore'
-import { ModalEventDetails, modalEventEmitter } from '../../lib/utils/events'
+import {
+  ModalEventDetails,
+  modalEventEmitter,
+  togglePreviewModeEventEmitter,
+} from '../../lib/utils/events'
 import { getDocTitle } from '../../lib/utils/patterns'
 import DocProperties from '../DocProperties'
 import { getDocLinkHref } from '../Link/DocLink'
 import DocPreviewRealtime from './DocPreviewRealtime'
 import LoaderDocEditor from '../../../design/components/atoms/loaders/LoaderDocEditor'
 import NewDocContextMenu from '../DocPage/NewDocContextMenu'
+import cc from 'classcat'
 
 interface DocPreviewModalProps {
   doc: SerializedDocWithSupplemental
@@ -39,8 +50,12 @@ const DocPreviewModal = ({ doc, team, fallbackUrl }: DocPreviewModalProps) => {
   const { push } = useRouter()
   const { currentUserIsCoreMember, permissions } = usePage()
   const [fetching, setFetching] = useState(true)
+  const [mode, setMode] = useState<'preview' | 'editor'>('preview')
   const [collabToken, setCollabToken] = useState(
     doc.collaborationToken || doc.id
+  )
+  const [renderHeader, setRenderHeader] = useState<() => React.ReactNode>(
+    () => null
   )
 
   const {
@@ -97,6 +112,17 @@ const DocPreviewModal = ({ doc, team, fallbackUrl }: DocPreviewModalProps) => {
     [closeLastModal, fallbackUrl, push]
   )
 
+  const toggleViewMode = useCallback(() => {
+    setMode((prev) => (prev === 'preview' ? 'editor' : 'preview'))
+  }, [])
+
+  useEffect(() => {
+    togglePreviewModeEventEmitter.listen(toggleViewMode)
+    return () => {
+      togglePreviewModeEventEmitter.unlisten(toggleViewMode)
+    }
+  }, [toggleViewMode])
+
   useEffect(() => {
     modalEventEmitter.listen(closePreviewModal)
     return () => {
@@ -124,7 +150,7 @@ const DocPreviewModal = ({ doc, team, fallbackUrl }: DocPreviewModalProps) => {
   }
 
   return (
-    <Container className='doc-preview'>
+    <Container className={cc(['doc-preview', `doc-preview--${mode}`])}>
       <Flexbox className='doc-preview__topbar' justifyContent='space-between'>
         <Button
           variant='transparent'
@@ -136,10 +162,13 @@ const DocPreviewModal = ({ doc, team, fallbackUrl }: DocPreviewModalProps) => {
           Open as full page
         </Button>
         <Flexbox className='doc-preview__actions'>
+          {renderHeader}
           <Button
             variant='icon'
-            iconPath={mdiPencil}
-            onClick={navigateToDoc}
+            iconPath={mode === 'preview' ? mdiPencil : mdiEyeOutline}
+            onClick={() =>
+              setMode((prev) => (prev === 'preview' ? 'editor' : 'preview'))
+            }
             id='doc-preview__edit'
             size='sm'
           />
@@ -191,9 +220,12 @@ const DocPreviewModal = ({ doc, team, fallbackUrl }: DocPreviewModalProps) => {
           </Flexbox>
         ) : (
           <DocPreviewRealtime
+            setRenderHeader={setRenderHeader}
             doc={currentDoc}
+            team={team}
             token={collabToken}
             user={currentUser}
+            mode={mode}
           />
         )}
       </div>
@@ -202,6 +234,31 @@ const DocPreviewModal = ({ doc, team, fallbackUrl }: DocPreviewModalProps) => {
 }
 
 const Container = styled.div`
+  &.doc-preview--preview {
+    width: 900px;
+  }
+  &.doc-preview--editor {
+    width: 80vw;
+    height: 94vh;
+    display: flex;
+    flex-direction: column;
+
+    .doc-preview__content {
+      flex: 1 1 10px;
+      display: flex;
+      flex-direction: column;
+
+      .doc-preview__title__wrapper,
+      .doc-props__properties,
+      .doc-preview__toolbar {
+        flex: 0 0 auto;
+      }
+
+      .doc-preview__editor {
+        flex: 1 1 10px;
+      }
+    }
+  }
   .doc-preview__actions > * + * {
     margin-left: ${({ theme }) => theme.sizes.spaces.sm}px;
   }
@@ -210,6 +267,7 @@ const Container = styled.div`
     padding: ${({ theme }) => theme.sizes.spaces.xsm}px
       ${({ theme }) => theme.sizes.spaces.sm}px;
     border-bottom: 1px solid ${({ theme }) => theme.colors.border.main};
+    flex: 0 0 auto;
   }
 
   .doc-preview__content {
