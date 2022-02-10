@@ -1,7 +1,7 @@
 import { lngKeys } from '../../lib/i18n/types'
 import {
   mdiContentDuplicate,
-  mdiDotsVertical,
+  mdiDotsHorizontal,
   mdiPencilOutline,
   mdiTrashCanOutline,
 } from '@mdi/js'
