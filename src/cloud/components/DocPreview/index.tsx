@@ -165,16 +165,19 @@ const DocPreviewModal = ({ doc, team, fallbackUrl }: DocPreviewModalProps) => {
         </Button>
         <Flexbox className='doc-preview__actions'>
           {renderHeader}
-          <WithTooltip tooltip={osName == 'macos' ? "Cmd+E" : "Ctrl+E"} side='bottom'>
-          <Button
-            variant='icon'
-            iconPath={mode === 'preview' ? mdiPencil : mdiEyeOutline}
-            onClick={() =>
-              setMode((prev) => (prev === 'preview' ? 'editor' : 'preview'))
-            }
-            id='doc-preview__edit'
-            size='sm'
-          />
+          <WithTooltip
+            tooltip={osName == 'macos' ? 'Cmd+E' : 'Ctrl+E'}
+            side='bottom'
+          >
+            <Button
+              variant='icon'
+              iconPath={mode === 'preview' ? mdiPencil : mdiEyeOutline}
+              onClick={() =>
+                setMode((prev) => (prev === 'preview' ? 'editor' : 'preview'))
+              }
+              id='doc-preview__edit'
+              size='sm'
+            />
           </WithTooltip>
           <Button
             variant='icon'
@@ -277,7 +280,8 @@ const Container = styled.div`
 
   .doc-preview__content {
     padding: ${({ theme }) => theme.sizes.spaces.df}px
-      ${({ theme }) => theme.sizes.spaces.xl}px 0 ${({ theme }) => theme.sizes.spaces.xl}px;
+      ${({ theme }) => theme.sizes.spaces.xl}px 0
+      ${({ theme }) => theme.sizes.spaces.xl}px;
   }
 
   .doc-preview__title__wrapper {
