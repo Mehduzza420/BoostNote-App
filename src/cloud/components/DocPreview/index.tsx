@@ -30,6 +30,8 @@ import {
   modalEventEmitter,
   togglePreviewModeEventEmitter,
 } from '../../lib/utils/events'
+import WithTooltip from '../../../design/components/atoms/WithTooltip'
+import { osName } from '../../../design/lib/platform'
 import { getDocTitle } from '../../lib/utils/patterns'
 import DocProperties from '../DocProperties'
 import { getDocLinkHref } from '../Link/DocLink'
@@ -163,6 +165,7 @@ const DocPreviewModal = ({ doc, team, fallbackUrl }: DocPreviewModalProps) => {
         </Button>
         <Flexbox className='doc-preview__actions'>
           {renderHeader}
+          <WithTooltip tooltip={osName == 'macos' ? "Cmd+E" : "Ctrl+E"} side='bottom'>
           <Button
             variant='icon'
             iconPath={mode === 'preview' ? mdiPencil : mdiEyeOutline}
@@ -172,6 +175,7 @@ const DocPreviewModal = ({ doc, team, fallbackUrl }: DocPreviewModalProps) => {
             id='doc-preview__edit'
             size='sm'
           />
+          </WithTooltip>
           <Button
             variant='icon'
             iconPath={mdiDotsHorizontal}
