@@ -43,6 +43,11 @@ export interface Actions {
   createComment: (thread: Thread, message: string) => Promise<void | Error>
   updateComment: (comment: Comment, message: string) => Promise<void | Error>
   deleteComment: (comment: Comment) => Promise<void | Error>
+  addReaction: (comment: Comment, reaction: string) => Promise<void | Error>
+  removeReaction: (
+    comment: Comment,
+    reactionId: string
+  ) => Promise<void | Error>
 }
 
 interface CommentManagerProps extends Actions {
@@ -59,6 +64,8 @@ function CommentManager({
   createComment,
   updateComment,
   deleteComment,
+  addReaction,
+  removeReaction,
   user,
   users,
 }: CommentManagerProps) {
@@ -86,6 +93,8 @@ function CommentManager({
                 onDelete={deleteThread}
                 users={usersOrEmpty}
                 updateComment={updateComment}
+                addReaction={addReaction}
+                removeReaction={removeReaction}
               />
             </div>
             <div className={'thread__list__container__create__thread'}>
@@ -122,6 +131,8 @@ function CommentManager({
                 className='comment__list'
                 updateComment={updateComment}
                 deleteComment={deleteComment}
+                addReaction={addReaction}
+                removeReaction={removeReaction}
                 user={user}
                 users={usersOrEmpty}
               />
@@ -250,7 +261,7 @@ const Container = styled.div`
   .thread__create {
     display: flex;
     align-items: center;
-    padding: 0px ${({ theme }) => theme.sizes.spaces.df}px;
+    padding: 0 ${({ theme }) => theme.sizes.spaces.df}px;
     margin: ${({ theme }) => theme.sizes.spaces.df}px 0;
     cursor: default;
     color: ${({ theme }) => theme.colors.text.secondary};
@@ -263,7 +274,7 @@ const Container = styled.div`
   }
 
   .thread__new {
-    padding: 0px ${({ theme }) => theme.sizes.spaces.df}px;
+    padding: 0 ${({ theme }) => theme.sizes.spaces.df}px;
   }
 
   .thread__loading {
