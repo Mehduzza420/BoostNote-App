@@ -148,7 +148,7 @@
     "uuid-parse": "^1.1.0",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.9",
-    "webpack-dev-server": "^3.11.0"
+    "webpack-dev-server": "^4.11.0"
   },
   "dependencies": {
     "@dnd-kit/core": "^5.0.1",
